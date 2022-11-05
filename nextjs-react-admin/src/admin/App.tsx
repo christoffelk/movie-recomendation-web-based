@@ -8,16 +8,15 @@ import {
   ReferenceInput,
 } from "react-admin";
 import jsonServerProvider from "ra-data-json-server";
+import authProvider from "../authProvider";
+import { PostList } from "../posts";
 
 const dataProvider = jsonServerProvider("https://jsonplaceholder.typicode.com");
-const postFilters = [
-  <TextInput source="q" label="Search" alwaysOn />,
-  <ReferenceInput source="userId" label="User" reference="users" />,
-];
+
 const App = () => (
-  <Admin dataProvider={dataProvider}>
+  <Admin dataProvider={dataProvider} authProvider={authProvider}>
     <Resource name="users" list={ListGuesser} edit={EditGuesser} />
-    <Resource name="comments" list={ListGuesser} />
+    <Resource name="comments" list={PostList} edit={EditGuesser} />
   </Admin>
 );
 

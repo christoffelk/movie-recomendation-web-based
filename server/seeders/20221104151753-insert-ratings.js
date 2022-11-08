@@ -1,29 +1,33 @@
-'use strict';
-const fs = require('fs');
+"use strict";
+const fs = require("fs");
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    const rawdata = fs.readFileSync('C:/Users/johan/Skripsi/server/assets/ratings.csv').toString();
-    const data = rawdata.split('\r\n');
+  async up(queryInterface, Sequelize) {
+    const rawdata = fs
+      .readFileSync(
+        "E:/skripsi/movie-recomendation-web-based/server/assets/ratings.csv"
+      )
+      .toString();
+    const data = rawdata.split("\r\n");
     let ratingsData = [];
     let index = 0;
-    for(let i=1; i<data.length ;i++){
-      const splited = data[i].split(',');
+    for (let i = 1; i < data.length; i++) {
+      const splited = data[i].split(",");
       ratingsData[index] = {
         UserId: parseInt(splited[0]),
         MovieId: parseInt(splited[1]),
-        Rating: splited[2]
-      }
+        Rating: splited[2],
+      };
 
       index++;
-      if(ratingsData.length % 50 == 0){
-        queryInterface.bulkInsert('Ratings', ratingsData);
+      if (ratingsData.length % 50 == 0) {
+        queryInterface.bulkInsert("Ratings", ratingsData);
         //reset
         ratingsData = [];
         index = 0;
       }
     }
-    return  queryInterface.bulkInsert('Ratings', ratingsData);
+    return queryInterface.bulkInsert("Ratings", ratingsData);
     /**
      * Add seed commands here.
      *
@@ -32,16 +36,16 @@ module.exports = {
      *   name: 'John Doe',
      *   isBetaMember: false
      * }], {});
-    */
+     */
   },
 
-  async down (queryInterface, Sequelize) {
-    return queryInterface.bulkDelete('Ratings', null, {});
+  async down(queryInterface, Sequelize) {
+    return queryInterface.bulkDelete("Ratings", null, {});
     /**
      * Add commands to revert seed here.
      *
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-  }
+  },
 };

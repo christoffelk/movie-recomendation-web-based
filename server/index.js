@@ -5,7 +5,7 @@ const { Sequelize } = require('sequelize');
 const app = express();
 const PORT = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config();
+    require('dotenv').config({ path: process.cwd()+'/.env'});
 }
 
 const { userRoutes, adminRoutes, movieRoutes, ratingRoutes } = require('./routers');

@@ -3,7 +3,7 @@ const fs = require('fs');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    const rawdata = fs.readFileSync('C:/Users/johan/Skripsi/server/assets/ratings.csv').toString();
+    const rawdata = fs.readFileSync(process.cwd()+'/assets/ratings.csv').toString();
     const data = rawdata.split('\r\n');
     let ratingsData = [];
     let index = 0;

@@ -9,6 +9,6 @@ router.get('/:movieId',getMovieById);
 router.post('/', [adminAuthentication, ...validationAddMovie], addMovie);
 router.put('/:movieId', [adminAuthentication, ...validationUpdateMovie], updateMovie);
 router.delete('/:movieId', adminAuthentication, deleteMovie);
-router.post('/upload',uploadImage);
+router.post('/upload', adminAuthentication, uploadImage);
 
 module.exports = router;

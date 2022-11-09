@@ -13,16 +13,22 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      Year: {
+      ReleaseDate: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.DATE
       },
-      ImgUrl: {
+      ImageFileName: {
         allowNull: false,
         type: Sequelize.TEXT
       },
       Description: {
         type: Sequelize.TEXT
+      },
+      Genres : {
+        type: Sequelize.ARRAY(Sequelize.INTEGER)
+      },
+      Popularity: {
+        type: Sequelize.DOUBLE
       },
       createdAt: {
         allowNull: false,

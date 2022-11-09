@@ -16,26 +16,42 @@ module.exports = (sequelize, DataTypes) => {
   movie.init({
     MovieId: {
       allowNull: false,
-      type: DataTypes.INTEGER,
       autoIncrement: true,
-      primaryKey: true
+      primaryKey: true,
+      type: DataTypes.INTEGER
     },
     Title: {
       allowNull: false,
       type: DataTypes.STRING
     },
-    Year: {
+    ReleaseDate: {
       allowNull: false,
-      type: DataTypes.STRING
+      type: DataTypes.DATE
     },
-    ImgUrl: {
+    ImageFileName: {
       allowNull: false,
-      type: DataTypes.STRING
+      type: DataTypes.TEXT
     },
-    Description: DataTypes.STRING,
+    Description: {
+      type: DataTypes.TEXT
+    },
+    Genres : {
+      type: DataTypes.ARRAY(DataTypes.INTEGER)
+    },
+    Popularity: {
+      type: Sequelize.DOUBLE
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE
+    },
     createdBy: {
       allowNull: false,
       type: DataTypes.INTEGER
+    },
+    updatedAt: {
+      allowNull: false,
+      type: DataTypes.DATE
     },
     updatedBy: {
       type: DataTypes.INTEGER

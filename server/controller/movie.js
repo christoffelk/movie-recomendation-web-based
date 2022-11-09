@@ -1,7 +1,6 @@
-const { Movie, Rating } = require('../models');
-const { ROLE_USER, ROLE_ADMIN } = require('../constants/general'); 
+const { Movie, Upload } = require('../models');
 const { GENERAL_ERROR, NO_ERROR, SYSTEM_ERROR } = require("../constants/errorCode");
-const { OK, CREATED, INTERNAL_ERROR, NOT_FOUND } = require('../constants/responseCode');
+const { OK, CREATED, INTERNAL_ERROR, NOT_FOUND, BAD_REQUEST } = require('../constants/responseCode');
 const { successResponse, errorResponse, upload } = require("../utils/helper");
 const multer = require('multer');
 
@@ -31,13 +30,18 @@ const uploadImage = async(req, res) => {
     try{
         console.log(req.body);
         const uploadedImage = upload('image',process.env.IMAGE_PATH,'.jpeg');
-        uploadedImage(req, res, (err) => {
+        uploadedImage(req, res, async (err) => {
             if(err instanceof multer.MulterError || err){
-                return res.status(OK).json(errorResponse(GENERAL_ERROR, err.message, err));
+                return res.status(BAD_REQUEST).json(errorResponse(GENERAL_ERROR, err.message, err));
             }
         });
 
-        res.status(OK).json(successResponse(NO_ERROR,"Berhasil upload gambar",{}));
+        const data = await Upload.create({
+            FileName: req.body.filename,
+            UploadedBy: req.user.UserId
+        });
+
+        res.status(OK).json(successResponse(NO_ERROR,"Berhasil upload gambar", data));
     }
     catch(err){
         console.log(err);
@@ -105,7 +109,19 @@ const deleteMovie = async (req, res) => {
 const getAllMovies = async (req, res) => {
     try {
         
+        let { page, limit } = req.params;
+
+        if(!limit || limit >= 100){
+            limit = 100;
+        }
+
+        if(!page || page < 1){
+            page = 1;
+        };
+
         const movies = await Movie.findAll({
+            offset: (page * limit) - limit + 1,
+            limit: limit,
             attributes: ['MovieId','Title','Year','ImgUrl','Description']
         });
         return res.status(OK).json(successResponse(NO_ERROR,"Berhasil mendapatkan film",movies));

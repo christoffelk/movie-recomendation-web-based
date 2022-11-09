@@ -63,4 +63,29 @@ const getRatedMovieByUser = async (req, res) => {
     }
 }
 
-module.exports = { ratingMovie, getRatedMovieByUser }
+const getAllRatings = async (req, res) => {
+    try{
+        let { page, limit } = req.params;
+
+        if(!limit || limit >= 100){
+            limit = 100;
+        }
+
+        if(!page || page < 1){
+            page = 1;
+        };
+
+        const ratings = await Rating.findAll({
+            offset: (page * limit) - limit + 1,
+            limit: limit
+
+        });
+
+        return res.status(OK).json(successResponse(NO_ERROR,"Berhasil mendapatkan rating", ratings));
+    }catch(err){
+        console.log(err);
+        res.status(INTERNAL_ERROR).json(errorResponse(SYSTEM_ERROR, '', {}));
+    }
+}
+
+module.exports = { ratingMovie, getRatedMovieByUser, getAllRatings }

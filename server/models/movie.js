@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ARRAY(DataTypes.INTEGER)
     },
     Popularity: {
-      type: Sequelize.DOUBLE
+      type: DataTypes.DOUBLE
     },
     createdAt: {
       allowNull: false,

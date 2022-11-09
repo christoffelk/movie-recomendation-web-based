@@ -24,6 +24,7 @@ const FCM = async (req, res) => {
         const totalCluster = 5; //total rating 0.5 1 1.5 2 ....
         const initialPointData = {};
         const randomMatrix = {}; //cluster x jumlah data
+        const clusterUsers = {};
         for(let i=0; i<ratings.length;i++){
             const userId = ratings[i]['UserId'];
             const rating = ratings[i]['Rating'];
@@ -32,11 +33,13 @@ const FCM = async (req, res) => {
             if(!initialPointData[userId]){
                 initialPointData[userId] = {};
                 randomMatrix[userId] = {};
+                clusterUsers[userId] = {};
             }
 
             if(!initialPointData[userId][movieId]){
                 initialPointData[userId][movieId] = [];
                 randomMatrix[userId][movieId] = [];
+                clusterUsers[userId][movieId] = {};
             }
 
             initialPointData[userId][movieId] = rating;
@@ -47,9 +50,16 @@ const FCM = async (req, res) => {
                 maximum -= randomNumber;
                 tempArr.push(randomNumber.toFixed(3));
             }
-            console.log(tempArr);
+
+            const min = Math.min(...tempArr);
+
+            clusterUsers[userId][movieId] = { 
+                cluster:  tempArr.findIndex( value => value == min),
+                value : min 
+            };
             randomMatrix[userId][movieId].push(...tempArr);
-        }   
+        }
+        return res.status(OK).send(JSON.stringify(clusterUsers));
 
         let start = true;
         let iteration = 1;
@@ -72,9 +82,7 @@ const FCM = async (req, res) => {
                     penyebut += Uijsquare;
                 }   
                 clusters['C'+(j+1)] = pembilang/penyebut;
-            }
-
-            console.log(clusters);
+            }            
 
             //Euclidien Distance
             const euclidiens = {};
@@ -116,7 +124,13 @@ const FCM = async (req, res) => {
 
 
             //stop when ||new matrix(U k+1) - old matrix (U k)|| < epsilon
+            for(let i=0;i<ratings.length;i++){
+                for(let j=0;j<totalCluster;j++){
+                    for(let k=0;k<totalCluster;k++){
 
+                    }
+                }
+            }
             iteration++;
         }
 

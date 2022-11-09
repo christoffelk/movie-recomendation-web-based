@@ -122,7 +122,6 @@ const getAllMovies = async (req, res) => {
         const movies = await Movie.findAll({
             offset: (page * limit) - limit + 1,
             limit: limit,
-            attributes: ['MovieId','Title','Year','ImgUrl','Description']
         });
         return res.status(OK).json(successResponse(NO_ERROR,"Berhasil mendapatkan film",movies));
     } catch (err) {

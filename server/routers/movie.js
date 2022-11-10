@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { adminAuthentication, authentication } = require('../middlewares/userMiddleware');
-const { validationAddMovie, validationUpdateMovie} = require('../middlewares/movieMiddleware');
+const { validationAddMovie, validationUpdateMovie, validationGetMovies} = require('../middlewares/movieMiddleware');
 const { addMovie, updateMovie, deleteMovie, getAllMovies, getMovieById, uploadImage } = require('../controller/movie');
 
-router.get('/', getAllMovies);
+router.get('/', validationGetMovies ,getAllMovies);
 router.get('/:movieId',getMovieById);
 router.post('/', [adminAuthentication, ...validationAddMovie], addMovie);
 router.put('/:movieId', [adminAuthentication, ...validationUpdateMovie], updateMovie);

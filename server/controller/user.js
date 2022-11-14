@@ -238,6 +238,7 @@ const getAllUser = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const userId = req.params.userId;
+        const roleLevel = req.role.Level;
         const user = await User.findOne({
             where:{
                 UserId: userId,
@@ -247,7 +248,7 @@ const getUserById = async (req, res) => {
                     module: 'Roles',
                     where: {
                         Level : {
-                            [Op.lte]: roleAdminLevel
+                            [Op.lte]: roleLevel
                         }
                     }  
                 },

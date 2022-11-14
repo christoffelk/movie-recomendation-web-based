@@ -50,6 +50,7 @@ const FCM = async (req, res) => {
         const initialPointData = {};
         const randomMatrix = {}; //cluster x jumlah data
         const clusterUsers = {};
+        const matrixDivided = {};
         for(let i=0; i<ratings.length;i++){
             const userId = ratings[i]['UserId'];
             const rating = ratings[i]['Rating'];
@@ -57,33 +58,35 @@ const FCM = async (req, res) => {
 
             if(!initialPointData[userId]){
                 initialPointData[userId] = {};
-                randomMatrix[userId] = [];
+                randomMatrix[userId] = {};
                 clusterUsers[userId] = {};
+                matrixDivided[userId] = {};
             }
 
             if(!initialPointData[userId][movieId]){
-                initialPointData[userId][movieId] = 0;
+                initialPointData[userId][movieId] = [];
+                randomMatrix[userId][movieId] = [];
+                clusterUsers[userId][movieId] = {};
+                matrixDivided[userId][movieId] = null;
             }
 
             initialPointData[userId][movieId] = rating;
             let tempArr = [];
             let maximum = 1;
             let sumRowRandomNumber = 0;
-            if(randomMatrix[userId].length == 0){
-                for(let j=0; j< totalCluster;j++){
-                    const randomNumber = parseFloat((Math.random() * maximum).toFixed(5));
-                    tempArr.push(randomNumber);
-                    sumRowRandomNumber += randomNumber
-                }
-                tempArr = tempArr.map(value => value/sumRowRandomNumber);
-                randomMatrix[userId].push(...tempArr);
-                const max = Math.max(...tempArr);
-
-                clusterUsers[userId] = { 
-                    cluster: 'C' + (randomMatrix[userId].findIndex( value => value == max) + 1),
-                    value : max 
-                };   
+            for(let j=0; j< totalCluster;j++){
+                const randomNumber = parseFloat((Math.random() * maximum).toFixed(5));
+                tempArr.push(randomNumber);
+                sumRowRandomNumber += randomNumber
             }
+            tempArr = tempArr.map(value => value/sumRowRandomNumber);
+            randomMatrix[userId][movieId].push(...tempArr);
+            const min = Math.min(...tempArr);
+
+            clusterUsers[userId][movieId] = { 
+                cluster: 'C' + (randomMatrix[userId][movieId].findIndex( value => value == min) + 1),
+                value : min 
+            };   
         }
 
         let start = true;
@@ -92,57 +95,59 @@ const FCM = async (req, res) => {
         let euclidiens = {};
         for(let iter=0;iter<maxIter;iter++){
             console.log('Iterasi ',iteration);
-            console.log(randomMatrix);
+            // console.log(randomMatrix);
             // Hitung centroid
             centroids = centroidCluster(ratings, randomMatrix, initialPointData);
             console.log('Centroid '+iteration,centroids);
             //Euclidien Distance
             euclidiens = euclidienDistance(ratings,centroids,initialPointData);
-            console.log('Euclidiens '+iteration,euclidiens);
+            // console.log('Euclidiens '+iteration,euclidiens);
             const matrixError = [];
             
             //update bilangan matrix 
             for(let c=0;c<totalCluster;c++){
                 matrixError[c] = [];
-                for(let i=0;i<Object.keys(initialPointData).length;i++){
-                    const userId = Object.keys(initialPointData)[i];
+                for(let i=0;i<ratings.length;i++){
+                    const userId = ratings[i]['UserId'];
+                    const movieId = ratings[i]['MovieId'];
 
+                    // let pembilang = Math.pow((1/euclidiens[userId][movieId]['C'+(c+1)]),1/(m-1));
                     let penyebut = 0;
-                    let temp = randomMatrix[userId][c];
+                    let temp = randomMatrix[userId][movieId][c];
                     for(let k=0;k<totalCluster;k++){
-                        penyebut += Math.pow((euclidiens[userId]['C'+(c+1)]/euclidiens[userId]['C'+(k+1)]),2/(m-1));
+                        penyebut += Math.pow((euclidiens[userId][movieId]['C'+(c+1)]/euclidiens[userId][movieId]['C'+(k+1)]),2/(m-1));
                     }
 
-                    randomMatrix[userId][c] = 1/penyebut;
-                    temp = randomMatrix[userId][c] - temp;
+                    randomMatrix[userId][movieId][c] = 1/penyebut;
+                    temp = randomMatrix[userId][movieId][c] - temp;
                     matrixError[c].push(temp);
                 }
             }
-            // console.log(randomMatrix);  
 
             //Check apakah ada perpindahan cluster atau tidak
             // jika tidak ada perpindahan cluster lagi maka iterasi berhenti
             let stop = true;
-            for(let i=0;i<Object.keys(initialPointData).length;i++){
+            for(let i=0;i<ratings.length;i++){
                 const userId = ratings[i]['UserId'];
+                const movieId = ratings[i]['MovieId'];
 
-                const max = Math.max(...randomMatrix[userId]);
+                const max = Math.max(...randomMatrix[userId][movieId]);
 
-                clusterUsers[userId] = { 
-                    cluster: 'C' + (randomMatrix[userId].findIndex( value => value == max) + 1),
+                clusterUsers[userId][movieId] = { 
+                    cluster: 'C' + (randomMatrix[userId][movieId].findIndex( value => value == max) + 1),
                     value : max 
                 };
             }
             let Norm = tf.tensor2d(matrixError);
             let normValue = Norm.norm().dataSync()[0];
             if(normValue < epsilon){
-                // updateClusteringToDb(randomMatrix);
+                // updateClusteringToDb(randomMatrix, centroids);
                 break;
             }
             iteration++;
         }
 
-        res.status(OK).send(JSON.stringify(clusterUsers));
+        res.status(OK).send(JSON.stringify(randomMatrix));
 
     } catch (err) {
         console.log(err);
@@ -150,48 +155,24 @@ const FCM = async (req, res) => {
     }
 }
 
-const averageUserRated = (initialPointData) => {
-    let averageRated = {};
-    for(let i=0;i<Object.keys(initialPointData).length;i++){        
-        const userId = Object.keys(initialPointData)[i];
-        const movieIds = Object.keys(initialPointData[userId]);
-        const totalMoviesRated = Object.keys(initialPointData[userId]).length;
-
-        if(!averageRated[userId]){
-            averageRated[userId] = 0;
-        }
-
-        for(let k=0;k<totalMoviesRated;k++){
-            averageRated[userId] += parseFloat(initialPointData[userId][movieIds[k]]);
-        }
-
-        averageRated[userId] /= totalMoviesRated;
-    }
-
-    return averageRated;
-}
-
 
 const euclidienDistance = (ratings, centroids, initialPointData) => {
     try {
         let euclidiens = {};
-        let averageRatings = averageUserRated(initialPointData);
-        const userIds = Object.keys(initialPointData);
-        for(let i=0;i<userIds.length;i++){
-            const userId = userIds[i];
-            const movieIds = Object.keys(initialPointData[userId]);
+        for(let i=0;i<ratings.length;i++){
+            const userId = ratings[i]['UserId'];
+            const movieId = ratings[i]['MovieId'];
 
             if(!euclidiens[userId]){
                 euclidiens[userId] = {};
             }
+
+            if(!euclidiens[userId][movieId]){
+                euclidiens[userId][movieId] = {};
+            }
             
             for(let c=0;c<Object.keys(centroids).length;c++){
-                // let temp = 0;
-                // for(let k=0;k<movieIds.length;k++){
-                //     temp += Math.pow(centroids['C'+(c+1)] - initialPointData[userId][movieIds[k]],2);
-                // }
-                // euclidiens[userId]['C'+(c+1)] = Math.sqrt(temp);
-                euclidiens[userId]['C'+(c+1)] = Math.sqrt(Math.pow(centroids['C'+(c+1)] - averageRatings[userId],2));
+                euclidiens[userId][movieId]['C'+(c+1)] = Math.sqrt(Math.pow(centroids['C'+(c+1)] - initialPointData[userId][movieId],2));
             }
         }
 
@@ -204,15 +185,16 @@ const euclidienDistance = (ratings, centroids, initialPointData) => {
 const centroidCluster = (ratings, randomMatrix, initialPointData) => {
     try {
         let centroids = {};
-        let averageRatings = averageUserRated(initialPointData);
         for(let j=0;j<totalCluster;j++){
             let pembilang = 0;
             let penyebut = 0;
 
-            for(let i=0;i<Object.keys(initialPointData).length;i++){
-                const userId = Object.keys(initialPointData)[i];
-                xi = averageRatings[userId];
-                const Uijsquare = Math.pow(parseFloat(randomMatrix[userId][j]),m);
+            for(let i=0;i<ratings.length;i++){
+                const userId = ratings[i]['UserId'];
+                const movieId = ratings[i]['MovieId'];
+
+                const xi = parseFloat(initialPointData[userId][movieId]);
+                const Uijsquare = Math.pow(parseFloat(randomMatrix[userId][movieId][j]),m);
                 
                 pembilang += (xi * Uijsquare);
                 penyebut += Uijsquare;
@@ -227,32 +209,50 @@ const centroidCluster = (ratings, randomMatrix, initialPointData) => {
     }
 }
 
-const updateClusteringToDb = async (randomMatrix) => {
+const updateClusteringToDb = async (randomMatrix, centroids) => {
     try {
         let tempObject = [];
         let limit = 50;
 
+
         for(let i=0;i<Object.keys(randomMatrix).length;i++){
             const userId = Object.keys(randomMatrix)[i];
-
-            const values = randomMatrix[userId];
-            for(let k=0;k<values.length;k++){
+            const movieIds = Object.keys(randomMatrix[userId]);
+            
+            for(let j=0;j<movieIds.length;j++){
+                const values = randomMatrix[userId][movieIds[j]];
                 tempObject.push({
                     UserId : userId,
-                    Cluster: k+1,
-                    Value: values[k]
+                    MovieId : movieIds[j],
+                    Cluster1: values[0],
+                    Cluster2: values[1],
+                    Cluster3: values[2],
+                    Cluster4: values[3],
+                    Cluster5: values[4]
                 });
-            }
-            if(tempObject.length >= limit){
-                console.log(tempObject.length);
-                const result = await ClusterFormation.bulkCreate(tempObject);
-                tempObject = [];
+                if(tempObject.length >= limit){
+                    console.log(tempObject.length);
+                    const result = await ClusterFormation.bulkCreate(tempObject);
+                    console.log(result);
+                    tempObject = [];
+                }
             }
         }
+
 
         if(tempObject.length > 0){
             await ClusterFormation.bulkCreate(tempObject);
         }
+
+        let tempCentroids = [];
+        Object.keys(centroids).forEach(key => {
+            tempCentroids.push({
+                Cluster : key,
+                Value : centroids[key]
+            });
+        });
+
+        await Centroid.bulkCreate(tempCentroids);
         
     } catch (err) {
         console.log(err.message);
@@ -260,32 +260,9 @@ const updateClusteringToDb = async (randomMatrix) => {
 }
 //item based collaborative filtering
 
-const IBCF = async (req, res) => {
+const IBCF = async () => {
     try {
-        const { userId, movieId } = req.body;
-
-
-        // find similarity between item rated by user and another item
-
-        
-        const userCluster = await ClusterFormation.findAll({
-            where: {
-                UserId: userId
-            },
-            order: [
-                ['Values', 'ASC']
-            ],
-            limit : 1
-        });
-
-        // find users in the same clusters
-        const userByCluster = await ClusterFormation.findAll({
-            where: {
-                Cluster: userCluster['Cluster']
-            }
-        });
-
-
+        const centroids = await Centroid.findAll();
     } catch (err) {
         
     }

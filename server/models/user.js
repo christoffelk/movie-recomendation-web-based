@@ -25,12 +25,8 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false
     },
     RoleId: {
-      type: DataTypes.SMALLINT,
-      allowNull: false,
-      references: {
-        model: 'Role',
-        key: 'RoleId'
-      }
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
     FirstName: {
       type: DataTypes.STRING(50)

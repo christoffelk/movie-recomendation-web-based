@@ -245,7 +245,7 @@ const getUserById = async (req, res) => {
             },
             include: [
                 {
-                    module: 'Roles',
+                    model: Role,
                     where: {
                         Level : {
                             [Op.lte]: roleLevel

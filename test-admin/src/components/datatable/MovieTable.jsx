@@ -1,31 +1,13 @@
 import "./datatable.scss";
 import { DataGrid } from "@mui/x-data-grid";
-import { userColumns, userRows,} from "../../dataTableSource";
+import { movieColumns, userColumns, userRows,} from "../../dataTableSource";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import React from 'react'
-const Datatable = () => {
+const MovieTable = () => {
   const [data, setData] = useState([]);
-  function getUserById(id){
-    return fetch(`http://localhost:5000/user/${id}`,{
-      headers: {
-        Authorization: "Bearer" + " " + JSON.parse(sessionStorage.getItem("token")),
-      },
-    })
-    .then(response => response).then(data => console.log(data))
-  }
-
-  function deleteUser(id){
-    return fetch(`http://localhost:5000/user/${id}`,{
-      method:'DELETE',
-      headers: {
-        Authorization: "Bearer" + " " + JSON.parse(sessionStorage.getItem("token")),
-      },
-
-    })
-  }
   React.useEffect(() => {
-    fetch("http://localhost:5000/user", {
+    fetch("http://localhost:5000/movie", {
       headers: {
         Authorization: "Bearer" + " " + JSON.parse(sessionStorage.getItem("token")),
       },
@@ -37,8 +19,8 @@ const Datatable = () => {
   },[])
    
 
-    const handleDelete = (params) => {
-      deleteUser(params)
+    const handleDelete = (id) => {
+      setData(data.filter((item) => item.id !== id));
     };
   
     const actionColumn = [
@@ -49,12 +31,12 @@ const Datatable = () => {
         renderCell: (params) => {
           return (
             <div className="cellAction">
-              <Link to="/users/:userId" style={{ textDecoration: "none" }}>
-                <div className="viewButton" onClick={() => getUserById(params.row.UserId)}>View</div>
+              <Link to="/movie/:movieId" style={{ textDecoration: "none" }}>
+                <div className="viewButton">View</div>
               </Link>
               <div
                 className="deleteButton"
-                onClick={() => handleDelete(params.row.UserId)}
+                onClick={() => handleDelete(params.row.id)}
               >
                 Delete
               </div>
@@ -66,7 +48,7 @@ const Datatable = () => {
     return (
       <div className="datatable">
         <div className="datatableTitle">
-          Add New User
+          Add New Movie
           <Link to="/users/new" className="link">
             Add New
           </Link>
@@ -74,8 +56,8 @@ const Datatable = () => {
         <DataGrid
           className="datagrid"
           rows={data ||[]} 
-          getRowId={(row) => row.UserId}
-          columns={userColumns.concat(actionColumn)}
+          getRowId={(row) => row.MovieId}
+          columns={movieColumns.concat(actionColumn)}
           pageSize={9}
           rowsPerPageOptions={[9]}
           checkboxSelection
@@ -84,4 +66,4 @@ const Datatable = () => {
     );
   };
   
-  export default Datatable;
+  export default MovieTable;

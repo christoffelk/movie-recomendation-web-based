@@ -8,6 +8,7 @@ const Home = ()=> {
             <Sidebar/>
             <div className="homeContainer">
             <Navbar />
+            <h1>Welcome to Admin DashBoard</h1>
         {/* <div className="widgets">
           <Widget type="user" />
           <Widget type="order" />

@@ -1,40 +1,101 @@
-export const userColumns = [
-  { field: "id", headerName: "ID", width: 70 },
+import React from "react";
+export const ratingColumns = [
   {
-    field: "user",
-    headerName: "User",
-    width: 230,
-    renderCell: (params) => {
-      return (
-        <div className="cellWithImg">
-          <img className="cellImg" src={params.row.img} alt="avatar" />
-          {params.row.username}
-        </div>
-      );
-    },
+    field: "RatingId",
+    width: 70,
   },
   {
-    field: "email",
-    headerName: "Email",
+    field: "UserId",
+    headerName: "UserId",
+    width: 230,
+  },
+  {
+    field: "MovieId",
+    headerName: "MovieId",
+    width: 230,
+  },
+  {
+    field: "Rating",
+    headerName: "Rating",
+    width: 230,
+  },
+];
+export const movieColumns = [
+  { field: "MovieId", headerName: "id", width: 70 },
+  {
+    field: "Title",
+    headerName: "Title",
+    width: 230,
+  },
+  {
+    field: "ReleaseDate",
+    headerName: "year",
+    width: 230,
+  },
+  {
+    field: "ImageFileName",
+    headerName: "image",
+    width: 230,
+  },
+  {
+    field: "Description",
+    headerName: "description",
+    width: 230,
+  },
+  {
+    field: "createdAt",
+    headerName: "createdAt",
+    width: 230,
+  },
+  {
+    field: "updatedAt",
+    headerName: "updatedAt",
+    width: 230,
+  },
+];
+export const userColumns = [
+  { field: "UserId", headerName: "id", width: 70 },
+  { field: "RoleId", headerName: "RoleId", width: 70 },
+  {
+    field: "Email",
+    headerName: "email",
+    width: 230,
+  },
+  {
+    field: "FirstName",
+    headerName: "firstname",
     width: 230,
   },
 
   {
-    field: "age",
-    headerName: "Age",
+    field: "LastName",
+    headerName: "lastname",
     width: 100,
   },
   {
-    field: "status",
-    headerName: "Status",
-    width: 160,
-    renderCell: (params) => {
-      return (
-        <div className={`cellWithStatus ${params.row.status}`}>
-          {params.row.status}
-        </div>
-      );
-    },
+    field: "UserName",
+    headerName: "username",
+    width: 230,
+  },
+  {
+    field: "BirthDate",
+    headerName: "Birth Date",
+    width: 230,
+  },
+  {
+    field: "Gender",
+    headerName: "Gender",
+    width: 230,
+  },
+  {
+    field: "Suspended",
+    headerName: "isSuspended",
+    width: 230,
+  },
+  {
+    field: "EmailVerified",
+    headerName: "isVerified",
+    width: 230,
   },
 ];
 

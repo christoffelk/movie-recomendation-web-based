@@ -24,12 +24,6 @@ module.exports = {
       Description: {
         type: Sequelize.TEXT
       },
-      Genres : {
-        type: Sequelize.ARRAY(Sequelize.INTEGER)
-      },
-      Popularity: {
-        type: Sequelize.DOUBLE
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

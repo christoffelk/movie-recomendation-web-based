@@ -9,10 +9,6 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.SMALLINT
       },
-      Level: {
-        allowNull: false,
-        type: Sequelize.SMALLINT
-      },
       RoleName: {
         allowNull: false,
         type: Sequelize.STRING(100)

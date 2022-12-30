@@ -13,11 +13,9 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      FirstName:{
-        type: Sequelize.STRING(50)
-      },
-      LastName: {
-        type: Sequelize.STRING(50)
+      FullName: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       Email: {
         type: Sequelize.STRING(50),
@@ -38,10 +36,6 @@ module.exports = {
         type: Sequelize.STRING(10)
       },
       Suspended: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false
-      },
-      EmailVerified:{
         type: Sequelize.BOOLEAN,
         allowNull: false
       },

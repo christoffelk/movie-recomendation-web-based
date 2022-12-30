@@ -30,11 +30,8 @@ function App() {
             <Route path="dashboard" element={<Home />} />
             <Route path="users">
               <Route index element={<List />} />
-              <Route path=":userId" element={<Single />} />
-              <Route
-                path="new"
-                element={<Create  title="Add New User" />}
-              />
+              <Route path=":UserId" element={<Single />} />
+              <Route path="new" element={<Create title="Add New User" />} />
             </Route>
             <Route path="rating">
               <Route index element={<RatingList />} />

@@ -6,14 +6,7 @@ import { useState } from "react";
 import React from 'react'
 const Datatable = () => {
   const [data, setData] = useState([]);
-  function getUserById(id){
-    return fetch(`http://localhost:5000/user/${id}`,{
-      headers: {
-        Authorization: "Bearer" + " " + JSON.parse(sessionStorage.getItem("token")),
-      },
-    })
-    .then(response => response).then(data => console.log(data))
-  }
+ 
 
   function deleteUser(id){
     return fetch(`http://localhost:5000/user/${id}`,{
@@ -49,8 +42,8 @@ const Datatable = () => {
         renderCell: (params) => {
           return (
             <div className="cellAction">
-              <Link to="/users/:userId" style={{ textDecoration: "none" }}>
-                <div className="viewButton" onClick={() => getUserById(params.row.UserId)}>View</div>
+              <Link to={`/users/${params.row.UserId}`} style={{ textDecoration: "none" }} >
+                <div className="viewButton">View</div>
               </Link>
               <div
                 className="deleteButton"
